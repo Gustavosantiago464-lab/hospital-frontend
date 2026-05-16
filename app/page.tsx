@@ -26,20 +26,28 @@ export default function Home() {
   const [prioridade, setPrioridade] =
     useState("🟢 Normal");
 
-  const [fila, setFila] = useState<Paciente[]>([]);
+  // FILA SALVA
+  const [fila, setFila] = useState<Paciente[]>(
+    () => {
+      if (
+        typeof window !== "undefined"
+      ) {
+        const filaSalva =
+          localStorage.getItem(
+            "fila"
+          );
+
+        return filaSalva
+          ? JSON.parse(filaSalva)
+          : [];
+      }
+
+      return [];
+    }
+  );
 
   const [painel, setPainel] =
     useState<Paciente | null>(null);
-
-  // CARREGA FILA SALVA
-  useEffect(() => {
-    const filaSalva =
-      localStorage.getItem("fila");
-
-    if (filaSalva) {
-      setFila(JSON.parse(filaSalva));
-    }
-  }, []);
 
   function adicionarPaciente() {
     if (!nome.trim()) return;
@@ -71,7 +79,6 @@ export default function Home() {
 
     setFila(novaFila);
 
-    // SALVA NO STORAGE
     localStorage.setItem(
       "fila",
       JSON.stringify(novaFila)
@@ -93,7 +100,6 @@ export default function Home() {
 
     setFila(novaFila);
 
-    // ATUALIZA STORAGE
     localStorage.setItem(
       "fila",
       JSON.stringify(novaFila)
