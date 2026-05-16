@@ -108,6 +108,32 @@ export default function Home() {
 
     setPainel(proximo);
 
+    // SALVA ÚLTIMO CHAMADO
+    localStorage.setItem(
+      "ultimoChamado",
+      JSON.stringify(proximo)
+    );
+
+    // HISTÓRICO
+    const historicoSalvo =
+      localStorage.getItem(
+        "historico"
+      );
+
+    const historico = historicoSalvo
+      ? JSON.parse(historicoSalvo)
+      : [];
+
+    const novoHistorico = [
+      proximo,
+      ...historico,
+    ].slice(0, 5);
+
+    localStorage.setItem(
+      "historico",
+      JSON.stringify(novoHistorico)
+    );
+
     const novaFila = [...fila];
 
     novaFila.shift();
