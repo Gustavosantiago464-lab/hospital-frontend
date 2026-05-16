@@ -31,6 +31,16 @@ export default function Home() {
   const [painel, setPainel] =
     useState<Paciente | null>(null);
 
+  // CARREGA FILA SALVA
+  useEffect(() => {
+    const filaSalva =
+      localStorage.getItem("fila");
+
+    if (filaSalva) {
+      setFila(JSON.parse(filaSalva));
+    }
+  }, []);
+
   function adicionarPaciente() {
     if (!nome.trim()) return;
 
@@ -54,10 +64,18 @@ export default function Home() {
       sala: novaSala,
     };
 
-    setFila((filaAtual) => [
-      ...filaAtual,
+    const novaFila = [
+      ...fila,
       novoPaciente,
-    ]);
+    ];
+
+    setFila(novaFila);
+
+    // SALVA NO STORAGE
+    localStorage.setItem(
+      "fila",
+      JSON.stringify(novaFila)
+    );
 
     setNome("");
   }
@@ -74,6 +92,12 @@ export default function Home() {
     novaFila.shift();
 
     setFila(novaFila);
+
+    // ATUALIZA STORAGE
+    localStorage.setItem(
+      "fila",
+      JSON.stringify(novaFila)
+    );
   }
 
   return (
