@@ -9,11 +9,21 @@ export default function Login() {
 
   const router = useRouter();
 
-  function entrar() {
-    if (
-      usuario === "admin" &&
-      senha === "123"
-    ) {
+  async function entrar() {
+    const resposta = await fetch("/api/login", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        usuario,
+        senha,
+      }),
+    });
+
+    const dados = await resposta.json();
+
+    if (dados.sucesso) {
       localStorage.setItem("logado", "true");
 
       router.push("/");
@@ -32,9 +42,7 @@ export default function Login() {
         <input
           placeholder="Usuário"
           value={usuario}
-          onChange={(e) =>
-            setUsuario(e.target.value)
-          }
+          onChange={(e) => setUsuario(e.target.value)}
           className="w-full p-4 rounded-xl bg-slate-800 text-white mb-4"
         />
 
@@ -42,9 +50,7 @@ export default function Login() {
           type="password"
           placeholder="Senha"
           value={senha}
-          onChange={(e) =>
-            setSenha(e.target.value)
-          }
+          onChange={(e) => setSenha(e.target.value)}
           className="w-full p-4 rounded-xl bg-slate-800 text-white mb-6"
         />
 
