@@ -18,14 +18,17 @@ export default function Home() {
     useState<Paciente | null>(null);
 
   function adicionarPaciente() {
-    if (!nome) return;
+    if (!nome.trim()) return;
 
     const novoPaciente = {
       nome,
       prioridade,
     };
 
-    setFila([...fila, novoPaciente]);
+    setFila((filaAtual) => [
+      ...filaAtual,
+      novoPaciente,
+    ]);
 
     setNome("");
   }
@@ -95,6 +98,7 @@ export default function Home() {
       )}
 
       <div className="grid md:grid-cols-2 gap-8">
+        {/* FORM */}
         <div className="bg-slate-900 p-8 rounded-3xl">
           <h2 className="text-4xl font-bold mb-6">
             Novo Paciente
@@ -137,6 +141,7 @@ export default function Home() {
           </button>
         </div>
 
+        {/* FILA */}
         <div className="bg-slate-900 p-8 rounded-3xl">
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-4xl font-bold">
