@@ -14,9 +14,6 @@ export default function Home() {
 
   const [fila, setFila] = useState<Paciente[]>([]);
 
-  const [pacienteChamado, setPacienteChamado] =
-    useState<Paciente | null>(null);
-
   function adicionarPaciente() {
     if (!nome.trim()) return;
 
@@ -36,36 +33,28 @@ export default function Home() {
   function chamarProximo() {
     if (fila.length === 0) return;
 
-    const paciente = fila[0];
-
-    setPacienteChamado(paciente);
-
     const novaFila = [...fila];
 
     novaFila.shift();
 
     setFila(novaFila);
-
-    setTimeout(() => {
-      setPacienteChamado(null);
-    }, 5000);
   }
 
   return (
-    <main className="min-h-screen bg-slate-950 text-white p-10">
+    <main className="min-h-screen bg-gradient-to-br from-slate-950 to-slate-900 text-white p-10">
       <div className="flex justify-between items-center mb-10">
         <div>
-          <h1 className="text-5xl font-bold">
+          <h1 className="text-6xl font-bold flex items-center gap-4">
             🏥 Sistema Hospitalar
           </h1>
 
-          <p className="text-slate-400">
+          <p className="text-slate-400 mt-2 text-lg">
             Controle inteligente de pacientes
           </p>
         </div>
 
         <button
-          className="bg-red-500 px-6 py-3 rounded-xl font-bold"
+          className="bg-red-500 hover:bg-red-600 transition px-6 py-3 rounded-2xl font-bold shadow-lg"
           onClick={() => {
             localStorage.removeItem("logado");
 
@@ -77,30 +66,9 @@ export default function Home() {
         </button>
       </div>
 
-      {pacienteChamado && (
-        <div className="bg-green-600 rounded-3xl p-10 mb-8 text-center animate-pulse">
-          <h2 className="text-3xl font-bold mb-4">
-            🔊 CHAMANDO PACIENTE
-          </h2>
-
-          <h1 className="text-7xl font-extrabold">
-            {pacienteChamado.nome}
-          </h1>
-
-          <p className="text-3xl mt-6">
-            {pacienteChamado.prioridade}
-          </p>
-
-          <p className="text-2xl mt-4">
-            🚪 Dirigir-se para Sala 03
-          </p>
-        </div>
-      )}
-
       <div className="grid md:grid-cols-2 gap-8">
-        {/* FORM */}
-        <div className="bg-slate-900 p-8 rounded-3xl">
-          <h2 className="text-4xl font-bold mb-6">
+        <div className="bg-slate-900/70 border border-slate-700 p-8 rounded-3xl shadow-2xl backdrop-blur">
+          <h2 className="text-5xl font-bold mb-8">
             Novo Paciente
           </h2>
 
@@ -110,7 +78,7 @@ export default function Home() {
             onChange={(e) =>
               setNome(e.target.value)
             }
-            className="w-full p-4 rounded-xl bg-slate-800 mb-4"
+            className="w-full p-5 rounded-2xl bg-slate-800 text-white mb-5 outline-none text-xl"
           />
 
           <select
@@ -118,7 +86,7 @@ export default function Home() {
             onChange={(e) =>
               setPrioridade(e.target.value)
             }
-            className="w-full p-4 rounded-xl bg-slate-800 mb-6"
+            className="w-full p-4 rounded-2xl bg-slate-800 text-white mb-6 text-lg"
           >
             <option>
               🟢 Normal
@@ -135,22 +103,21 @@ export default function Home() {
 
           <button
             onClick={adicionarPaciente}
-            className="w-full bg-blue-600 hover:bg-blue-700 p-4 rounded-xl font-bold"
+            className="w-full bg-blue-600 hover:bg-blue-700 transition p-5 rounded-2xl text-2xl font-bold shadow-lg"
           >
             Adicionar Paciente
           </button>
         </div>
 
-        {/* FILA */}
-        <div className="bg-slate-900 p-8 rounded-3xl">
-          <div className="flex justify-between items-center mb-6">
-            <h2 className="text-4xl font-bold">
+        <div className="bg-slate-900/70 border border-slate-700 p-8 rounded-3xl shadow-2xl backdrop-blur">
+          <div className="flex justify-between items-center mb-8">
+            <h2 className="text-5xl font-bold">
               Fila Hospitalar
             </h2>
 
             <button
               onClick={chamarProximo}
-              className="bg-green-500 px-6 py-3 rounded-xl font-bold"
+              className="bg-green-500 hover:bg-green-600 transition px-6 py-4 rounded-2xl text-xl font-bold shadow-lg"
             >
               Chamar Próximo
             </button>
@@ -160,14 +127,13 @@ export default function Home() {
             {fila.map((paciente, index) => (
               <div
                 key={index}
-                className="bg-slate-800 p-4 rounded-xl"
+                className="bg-slate-800 border border-slate-700 p-5 rounded-2xl"
               >
                 <h3 className="text-2xl font-bold">
                   {paciente.nome}
                 </h3>
 
-                <p>
-                  Prioridade:{" "}
+                <p className="text-slate-300 mt-2">
                   {paciente.prioridade}
                 </p>
               </div>
