@@ -14,6 +14,9 @@ export default function Home() {
 
   const [fila, setFila] = useState<Paciente[]>([]);
 
+  const [pacienteChamado, setPacienteChamado] =
+    useState<Paciente | null>(null);
+
   function adicionarPaciente() {
     if (!nome) return;
 
@@ -28,11 +31,21 @@ export default function Home() {
   }
 
   function chamarProximo() {
+    if (fila.length === 0) return;
+
+    const paciente = fila[0];
+
+    setPacienteChamado(paciente);
+
     const novaFila = [...fila];
 
     novaFila.shift();
 
     setFila(novaFila);
+
+    setTimeout(() => {
+      setPacienteChamado(null);
+    }, 5000);
   }
 
   return (
@@ -61,8 +74,27 @@ export default function Home() {
         </button>
       </div>
 
+      {pacienteChamado && (
+        <div className="bg-green-600 rounded-3xl p-10 mb-8 text-center animate-pulse">
+          <h2 className="text-3xl font-bold mb-4">
+            🔊 CHAMANDO PACIENTE
+          </h2>
+
+          <h1 className="text-7xl font-extrabold">
+            {pacienteChamado.nome}
+          </h1>
+
+          <p className="text-3xl mt-6">
+            {pacienteChamado.prioridade}
+          </p>
+
+          <p className="text-2xl mt-4">
+            🚪 Dirigir-se para Sala 03
+          </p>
+        </div>
+      )}
+
       <div className="grid md:grid-cols-2 gap-8">
-        {/* FORM */}
         <div className="bg-slate-900 p-8 rounded-3xl">
           <h2 className="text-4xl font-bold mb-6">
             Novo Paciente
@@ -105,7 +137,6 @@ export default function Home() {
           </button>
         </div>
 
-        {/* FILA */}
         <div className="bg-slate-900 p-8 rounded-3xl">
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-4xl font-bold">
