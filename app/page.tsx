@@ -7,6 +7,7 @@ type Paciente = {
   nome: string;
   prioridade: string;
   sala: string;
+  senha: string;
 };
 
 export default function Home() {
@@ -25,6 +26,9 @@ export default function Home() {
 
   const [prioridade, setPrioridade] =
     useState("🟢 Normal");
+
+  const [contador, setContador] =
+    useState(1);
 
   // FILA SALVA
   const [fila, setFila] = useState<Paciente[]>(
@@ -49,6 +53,13 @@ export default function Home() {
   const [painel, setPainel] =
     useState<Paciente | null>(null);
 
+  function gerarSenha() {
+    return `A${String(contador).padStart(
+      3,
+      "0"
+    )}`;
+  }
+
   function adicionarPaciente() {
     if (!nome.trim()) return;
 
@@ -70,6 +81,7 @@ export default function Home() {
       nome,
       prioridade,
       sala: novaSala,
+      senha: gerarSenha(),
     };
 
     const novaFila = [
@@ -83,6 +95,8 @@ export default function Home() {
       "fila",
       JSON.stringify(novaFila)
     );
+
+    setContador(contador + 1);
 
     setNome("");
   }
@@ -142,11 +156,15 @@ export default function Home() {
               🔊 CHAMANDO PACIENTE
             </h2>
 
-            <h1 className="text-8xl font-black">
-              {painel.nome}
+            <h1 className="text-9xl font-black text-white">
+              {painel.senha}
             </h1>
 
-            <p className="text-4xl mt-6">
+            <p className="text-5xl mt-6 font-bold">
+              {painel.nome}
+            </p>
+
+            <p className="text-3xl mt-4">
               {painel.prioridade}
             </p>
 
@@ -224,9 +242,13 @@ export default function Home() {
                 >
                   <div className="flex justify-between items-center">
                     <div>
-                      <h3 className="text-3xl font-black">
-                        {paciente.nome}
+                      <h3 className="text-4xl font-black text-cyan-400">
+                        {paciente.senha}
                       </h3>
+
+                      <p className="text-2xl mt-2 font-bold">
+                        {paciente.nome}
+                      </p>
 
                       <p className="text-xl text-slate-300 mt-2">
                         {
