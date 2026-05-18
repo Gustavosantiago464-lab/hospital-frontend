@@ -125,16 +125,10 @@ export default function Home() {
 
     const proximo = fila[0];
 
-    // TELÃO PRINCIPAL
+    // TELÃO
     setPainel(proximo);
 
-    // TV
-    localStorage.setItem(
-      "ultimoPaciente",
-      JSON.stringify(proximo)
-    );
-
-    // HISTÓRICO
+    // HISTÓRICO LOCAL
     const novoHistorico = [
       proximo,
       ...historico,
@@ -146,6 +140,11 @@ export default function Home() {
       "historico",
       JSON.stringify(novoHistorico)
     );
+
+    // SALVA HISTÓRICO NO SUPABASE
+    await supabase
+      .from("historico")
+      .insert([proximo]);
 
     // REMOVE DA FILA
     await supabase
