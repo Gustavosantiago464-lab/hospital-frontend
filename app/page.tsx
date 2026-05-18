@@ -16,7 +16,6 @@ export default function Home() {
   const router = useRouter();
 
   const [nome, setNome] = useState("");
-
   const [prioridade, setPrioridade] =
     useState("🟢 Normal");
 
@@ -127,7 +126,10 @@ export default function Home() {
           },
         ]);
 
-    console.log(error);
+    if (error) {
+      console.log(error);
+      return;
+    }
 
     // REMOVE DA FILA
     await supabase
