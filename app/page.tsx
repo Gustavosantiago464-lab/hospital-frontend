@@ -33,7 +33,7 @@ export default function Home() {
     setMostrarHistorico,
   ] = useState(false);
 
-  // LOGIN + DADOS
+  // LOGIN
   useEffect(() => {
     const logado =
       localStorage.getItem("logado");
@@ -57,7 +57,7 @@ export default function Home() {
     }
   }, []);
 
-  // CARREGA PACIENTES
+  // CARREGA FILA
   async function carregarPacientes() {
     const { data, error } =
       await supabase
@@ -80,7 +80,7 @@ export default function Home() {
     )}`;
   }
 
-  // ADICIONAR PACIENTE
+  // ADICIONA PACIENTE
   async function adicionarPaciente() {
     if (!nome.trim()) return;
 
@@ -125,8 +125,14 @@ export default function Home() {
 
     const proximo = fila[0];
 
-    // TELÃO
+    // TELÃO PRINCIPAL
     setPainel(proximo);
+
+    // TV
+    localStorage.setItem(
+      "ultimoPaciente",
+      JSON.stringify(proximo)
+    );
 
     // HISTÓRICO
     const novoHistorico = [
