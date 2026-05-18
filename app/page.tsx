@@ -41,7 +41,7 @@ export default function Home() {
     carregarPacientes();
   }, []);
 
-  // CARREGA FILA
+  // CARREGAR FILA
   async function carregarPacientes() {
     const { data, error } =
       await supabase
@@ -113,7 +113,7 @@ export default function Home() {
     setPainel(proximo);
 
     // SALVA NO HISTÓRICO
-    const { error } =
+    const { data, error } =
       await supabase
         .from("historico")
         .insert([
@@ -124,12 +124,11 @@ export default function Home() {
             sala: proximo.sala,
             senha: proximo.senha,
           },
-        ]);
+        ])
+        .select();
 
-    if (error) {
-      console.log(error);
-      return;
-    }
+    console.log(data);
+    console.log(error);
 
     // REMOVE DA FILA
     await supabase
