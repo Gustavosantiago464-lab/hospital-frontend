@@ -4,34 +4,31 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 
+type Paciente = {
+  id?: number;
+  nome: string;
+  prioridade: string;
+  sala: string;
+  senha: string;
+};
+
 export default function Home() {
   const router = useRouter();
 
   const [nome, setNome] = useState("");
+
   const [prioridade, setPrioridade] =
     useState("🟢 Normal");
 
   const [contador, setContador] =
     useState(1);
 
-  // FILA
-  const [fila, setFila] = useState<any[]>(
-    []
-  );
+  const [fila, setFila] = useState<
+    Paciente[]
+  >([]);
 
-  // TELÃO
   const [painel, setPainel] =
-    useState<any | null>(null);
-
-  // HISTÓRICO
-  const [historico, setHistorico] =
-    useState<any[]>([]);
-
-  // MOSTRAR HISTÓRICO
-  const [
-    mostrarHistorico,
-    setMostrarHistorico,
-  ] = useState(false);
+    useState<Paciente | null>(null);
 
   // LOGIN
   useEffect(() => {
@@ -43,20 +40,9 @@ export default function Home() {
     }
 
     carregarPacientes();
-
-    const historicoSalvo =
-      localStorage.getItem(
-        "historico"
-      );
-
-    if (historicoSalvo) {
-      setHistorico(
-        JSON.parse(historicoSalvo)
-      );
-    }
   }, []);
 
-  // CARREGA PACIENTES
+  // CARREGA FILA
   async function carregarPacientes() {
     const { data, error } =
       await supabase
@@ -71,7 +57,7 @@ export default function Home() {
     }
   }
 
-  // GERA SENHA
+  // GERAR SENHA
   function gerarSenha() {
     return `A${String(contador).padStart(
       3,
@@ -79,7 +65,7 @@ export default function Home() {
     )}`;
   }
 
-  // ADICIONA PACIENTE
+  // ADICIONAR PACIENTE
   async function adicionarPaciente() {
     if (!nome.trim()) return;
 
@@ -118,29 +104,16 @@ export default function Home() {
     }
   }
 
-  // CHAMAR PACIENTE
+  // CHAMAR PRÓXIMO
   async function chamarProximo() {
     if (fila.length === 0) return;
 
     const proximo = fila[0];
 
-    // TELÃO
+    // MOSTRA NO TELÃO
     setPainel(proximo);
 
-    // HISTÓRICO LOCAL
-    const novoHistorico = [
-      proximo,
-      ...historico,
-    ];
-
-    setHistorico(novoHistorico);
-
-    localStorage.setItem(
-      "historico",
-      JSON.stringify(novoHistorico)
-    );
-
-    // SALVA NO SUPABASE
+    // SALVA NO HISTÓRICO
     const { error } =
       await supabase
         .from("historico")
@@ -220,7 +193,7 @@ export default function Home() {
         )}
 
         {/* GRID */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
+        <div className="grid lg:grid-cols-2 gap-10">
           {/* NOVO PACIENTE */}
           <div className="bg-white/5 backdrop-blur-xl border border-white/10 p-10 rounded-[40px] shadow-2xl">
             <h2 className="text-5xl font-black mb-8">
@@ -280,90 +253,37 @@ export default function Home() {
             </div>
 
             <div className="space-y-5">
-              {fila.map(
-                (paciente, index) => (
-                  <div
-                    key={index}
-                    className="bg-black/30 border border-white/10 p-6 rounded-3xl"
-                  >
-                    <div className="flex justify-between items-center">
-                      <div>
-                        <h3 className="text-4xl font-black text-cyan-400">
-                          {
-                            paciente.senha
-                          }
-                        </h3>
-
-                        <p className="text-2xl mt-2 font-bold">
-                          {paciente.nome}
-                        </p>
-
-                        <p className="text-xl text-slate-300 mt-2">
-                          {
-                            paciente.prioridade
-                          }
-                        </p>
-                      </div>
-
-                      <div className="bg-blue-600 px-5 py-3 rounded-2xl text-xl font-bold">
-                        {paciente.sala}
-                      </div>
-                    </div>
-                  </div>
-                )
-              )}
-            </div>
-          </div>
-        </div>
-
-        {/* BOTÃO HISTÓRICO */}
-        <div className="mt-10 flex justify-center">
-          <button
-            onClick={() =>
-              setMostrarHistorico(
-                !mostrarHistorico
-              )
-            }
-            className="bg-purple-600 hover:bg-purple-700 transition px-8 py-4 rounded-3xl text-2xl font-black"
-          >
-            📋 Ver Histórico
-          </button>
-        </div>
-
-        {/* HISTÓRICO */}
-        {mostrarHistorico && (
-          <div className="mt-6 bg-white/5 backdrop-blur-xl border border-white/10 p-10 rounded-[40px] shadow-2xl">
-            <h2 className="text-4xl font-black mb-8">
-              📋 Histórico de
-              Atendimentos
-            </h2>
-
-            <div className="space-y-4">
-              {historico.map(
-                (paciente, index) => (
-                  <div
-                    key={index}
-                    className="bg-black/30 border border-white/10 p-5 rounded-3xl flex justify-between items-center"
-                  >
+              {fila.map((paciente) => (
+                <div
+                  key={paciente.id}
+                  className="bg-black/30 border border-white/10 p-6 rounded-3xl"
+                >
+                  <div className="flex justify-between items-center">
                     <div>
-                      <h3 className="text-2xl font-bold">
+                      <h3 className="text-4xl font-black text-cyan-400">
                         {paciente.senha}
                       </h3>
 
-                      <p className="text-slate-300">
+                      <p className="text-2xl mt-2 font-bold">
                         {paciente.nome}
+                      </p>
+
+                      <p className="text-xl text-slate-300 mt-2">
+                        {
+                          paciente.prioridade
+                        }
                       </p>
                     </div>
 
-                    <div className="bg-green-500 px-4 py-2 rounded-2xl font-bold">
-                      Finalizado
+                    <div className="bg-blue-600 px-5 py-3 rounded-2xl text-xl font-bold">
+                      {paciente.sala}
                     </div>
                   </div>
-                )
-              )}
+                </div>
+              ))}
             </div>
           </div>
-        )}
+        </div>
       </div>
     </main>
   );
