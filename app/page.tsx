@@ -2,13 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-
-type Paciente = {
-  nome: string;
-  prioridade: string;
-  sala: string;
-  senha: string;
-};
+import { supabase } from "@/lib/supabase";
 
 export default function Home() {
   const router = useRouter();
@@ -30,28 +24,37 @@ export default function Home() {
   const [contador, setContador] =
     useState(1);
 
-  // FILA SALVA
-  const [fila, setFila] = useState<Paciente[]>(
-    () => {
-      if (
-        typeof window !== "undefined"
-      ) {
-        const filaSalva =
-          localStorage.getItem(
-            "fila"
-          );
-
-        return filaSalva
-          ? JSON.parse(filaSalva)
-          : [];
-      }
-
-      return [];
-    }
+  // FILA
+  const [fila, setFila] = useState<any[]>(
+    []
   );
 
+  // TELÃO
   const [painel, setPainel] =
-    useState<Paciente | null>(null);
+    useState<any | null>(null);
+
+  // HISTÓRICO
+  const [historico, setHistorico] =
+    useState<any[]>([]);
+
+  // CARREGA PACIENTES
+  useEffect(() => {
+    carregarPacientes();
+  }, []);
+
+  async function carregarPacientes() {
+    const { data, error } =
+      await supabase
+        .from("pacientes")
+        .select("*")
+        .order("id", {
+          ascending: true,
+        });
+
+    if (!error && data) {
+      setFila(data);
+    }
+  }
 
   function gerarSenha() {
     return `A${String(contador).padStart(
@@ -60,7 +63,7 @@ export default function Home() {
     )}`;
   }
 
-  function adicionarPaciente() {
+  async function adicionarPaciente() {
     if (!nome.trim()) return;
 
     const salas = [
@@ -84,66 +87,48 @@ export default function Home() {
       senha: gerarSenha(),
     };
 
-    const novaFila = [
-      ...fila,
-      novoPaciente,
-    ];
+    // SALVA NO BANCO
+    const { error } =
+      await supabase
+        .from("pacientes")
+        .insert([novoPaciente]);
 
-    setFila(novaFila);
+    if (!error) {
+      carregarPacientes();
 
-    localStorage.setItem(
-      "fila",
-      JSON.stringify(novaFila)
-    );
+      setContador(contador + 1);
 
-    setContador(contador + 1);
-
-    setNome("");
+      setNome("");
+    }
   }
 
-  function chamarProximo() {
+  async function chamarProximo() {
     if (fila.length === 0) return;
 
     const proximo = fila[0];
 
+    // TELÃO
     setPainel(proximo);
 
-    // SALVA ÚLTIMO CHAMADO
+    // HISTÓRICO
+    setHistorico((prev) => [
+      proximo,
+      ...prev,
+    ]);
+
+    // TV
     localStorage.setItem(
-      "ultimoChamado",
+      "ultimoPaciente",
       JSON.stringify(proximo)
     );
 
-    // HISTÓRICO
-    const historicoSalvo =
-      localStorage.getItem(
-        "historico"
-      );
+    // REMOVE DO BANCO
+    await supabase
+      .from("pacientes")
+      .delete()
+      .eq("id", proximo.id);
 
-    const historico = historicoSalvo
-      ? JSON.parse(historicoSalvo)
-      : [];
-
-    const novoHistorico = [
-      proximo,
-      ...historico,
-    ].slice(0, 5);
-
-    localStorage.setItem(
-      "historico",
-      JSON.stringify(novoHistorico)
-    );
-
-    const novaFila = [...fila];
-
-    novaFila.shift();
-
-    setFila(novaFila);
-
-    localStorage.setItem(
-      "fila",
-      JSON.stringify(novaFila)
-    );
+    carregarPacientes();
   }
 
   return (
@@ -290,6 +275,38 @@ export default function Home() {
                 </div>
               ))}
             </div>
+          </div>
+        </div>
+
+        {/* HISTÓRICO */}
+        <div className="mt-10 bg-white/5 backdrop-blur-xl border border-white/10 p-10 rounded-[40px] shadow-2xl">
+          <h2 className="text-4xl font-black mb-8">
+            📋 Histórico de Atendimentos
+          </h2>
+
+          <div className="space-y-4">
+            {historico.map(
+              (paciente, index) => (
+                <div
+                  key={index}
+                  className="bg-black/30 border border-white/10 p-5 rounded-3xl flex justify-between items-center"
+                >
+                  <div>
+                    <h3 className="text-2xl font-bold">
+                      {paciente.senha}
+                    </h3>
+
+                    <p className="text-slate-300">
+                      {paciente.nome}
+                    </p>
+                  </div>
+
+                  <div className="bg-green-500 px-4 py-2 rounded-2xl font-bold">
+                    Finalizado
+                  </div>
+                </div>
+              )
+            )}
           </div>
         </div>
       </div>
