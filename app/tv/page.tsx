@@ -1,33 +1,32 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { supabase } from "@/lib/supabase";
 
 export default function TV() {
   const [paciente, setPaciente] =
     useState<any>(null);
 
-  useEffect(() => {
-    const ultimo =
-      localStorage.getItem(
-        "ultimoPaciente"
-      );
+  async function carregarUltimo() {
+    const { data } = await supabase
+      .from("historico")
+      .select("*")
+      .order("id", {
+        ascending: false,
+      })
+      .limit(1);
 
-    if (ultimo) {
-      setPaciente(JSON.parse(ultimo));
+    if (data && data.length > 0) {
+      setPaciente(data[0]);
     }
+  }
+
+  useEffect(() => {
+    carregarUltimo();
 
     const intervalo = setInterval(() => {
-      const atualizado =
-        localStorage.getItem(
-          "ultimoPaciente"
-        );
-
-      if (atualizado) {
-        setPaciente(
-          JSON.parse(atualizado)
-        );
-      }
-    }, 1000);
+      carregarUltimo();
+    }, 2000);
 
     return () =>
       clearInterval(intervalo);
@@ -59,7 +58,7 @@ export default function TV() {
         </div>
       ) : (
         <h1 className="text-6xl font-black">
-          Aguardando chamada...
+          Nenhum paciente chamado
         </h1>
       )}
     </main>
