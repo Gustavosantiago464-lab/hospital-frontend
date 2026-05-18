@@ -89,17 +89,21 @@ export default function Home() {
       senha: gerarSenha(),
     };
 
-    const { error } =
-      await supabase
-        .from("pacientes")
-        .insert([novoPaciente]);
+    try {
+      const resposta =
+        await supabase
+          .from("pacientes")
+          .insert([novoPaciente]);
 
-    if (!error) {
+      console.log(resposta);
+
       carregarPacientes();
 
       setContador(contador + 1);
 
       setNome("");
+    } catch (erro) {
+      console.log(erro);
     }
   }
 
@@ -109,34 +113,35 @@ export default function Home() {
 
     const proximo = fila[0];
 
-    // MOSTRA NO TELÃO
     setPainel(proximo);
 
-    // SALVA NO HISTÓRICO
-    const { data, error } =
+    try {
+      // SALVA HISTÓRICO
+      const resposta =
+        await supabase
+          .from("historico")
+          .insert([
+            {
+              nome: proximo.nome,
+              prioridade:
+                proximo.prioridade,
+              sala: proximo.sala,
+              senha: proximo.senha,
+            },
+          ]);
+
+      console.log(resposta);
+
+      // REMOVE DA FILA
       await supabase
-        .from("historico")
-        .insert([
-          {
-            nome: proximo.nome,
-            prioridade:
-              proximo.prioridade,
-            sala: proximo.sala,
-            senha: proximo.senha,
-          },
-        ])
-        .select();
+        .from("pacientes")
+        .delete()
+        .eq("id", proximo.id);
 
-    console.log(data);
-    console.log(error);
-
-    // REMOVE DA FILA
-    await supabase
-      .from("pacientes")
-      .delete()
-      .eq("id", proximo.id);
-
-    carregarPacientes();
+      carregarPacientes();
+    } catch (erro) {
+      console.log(erro);
+    }
   }
 
   return (
