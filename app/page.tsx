@@ -44,7 +44,6 @@ export default function Home() {
 
     carregarPacientes();
 
-    // CARREGA HISTÓRICO
     const historicoSalvo =
       localStorage.getItem(
         "historico"
@@ -57,7 +56,7 @@ export default function Home() {
     }
   }, []);
 
-  // CARREGA FILA
+  // CARREGA PACIENTES
   async function carregarPacientes() {
     const { data, error } =
       await supabase
@@ -141,10 +140,21 @@ export default function Home() {
       JSON.stringify(novoHistorico)
     );
 
-    // SALVA HISTÓRICO NO SUPABASE
-    await supabase
-      .from("historico")
-      .insert([proximo]);
+    // SALVA NO SUPABASE
+    const { error } =
+      await supabase
+        .from("historico")
+        .insert([
+          {
+            nome: proximo.nome,
+            prioridade:
+              proximo.prioridade,
+            sala: proximo.sala,
+            senha: proximo.senha,
+          },
+        ]);
+
+    console.log(error);
 
     // REMOVE DA FILA
     await supabase
