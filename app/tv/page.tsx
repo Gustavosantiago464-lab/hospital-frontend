@@ -2,64 +2,46 @@
 
 import { useEffect, useState } from "react";
 
-export default function TVHospital() {
-  const [paciente, setPaciente] = useState<any>(null);
-
-  async function carregarUltimoChamado() {
-    try {
-      const resposta = await fetch(
-        "http://localhost:3001/ultimo"
-      );
-
-      const dados = await resposta.json();
-
-      setPaciente(dados);
-    } catch (error) {
-      console.log(error);
-    }
-  }
+export default function TV() {
+  const [paciente, setPaciente] =
+    useState<any>(null);
 
   useEffect(() => {
-    carregarUltimoChamado();
+    const dados =
+      localStorage.getItem(
+        "ultimoPaciente"
+      );
 
-    const intervalo = setInterval(() => {
-      carregarUltimoChamado();
-    }, 2000);
-
-    return () => clearInterval(intervalo);
+    if (dados) {
+      setPaciente(JSON.parse(dados));
+    }
   }, []);
 
   return (
     <main className="min-h-screen bg-black text-white flex items-center justify-center p-10">
-      <div className="text-center w-full">
-        <h1 className="text-7xl font-bold mb-12 text-green-400">
-          🏥 PAINEL HOSPITALAR
+      {paciente ? (
+        <div className="text-center">
+          <h1 className="text-[120px] font-black text-green-400 animate-pulse">
+            {paciente.senha}
+          </h1>
+
+          <p className="text-6xl mt-10 font-bold">
+            {paciente.nome}
+          </p>
+
+          <p className="text-4xl mt-5">
+            {paciente.prioridade}
+          </p>
+
+          <div className="mt-10 bg-blue-600 px-10 py-5 rounded-3xl text-5xl font-black inline-block">
+            🚪 {paciente.sala}
+          </div>
+        </div>
+      ) : (
+        <h1 className="text-5xl font-bold">
+          Nenhum paciente chamado
         </h1>
-
-        {paciente ? (
-          <div className="bg-slate-900 border border-green-500 rounded-[40px] p-20 shadow-2xl animate-pulse">
-            <p className="text-4xl text-slate-400 mb-6">
-              SENHA CHAMADA
-            </p>
-
-            <h2 className="text-[170px] font-extrabold text-green-400 leading-none">
-              {paciente.senha}
-            </h2>
-
-            <p className="text-6xl mt-10 font-bold">
-              {paciente.nome}
-            </p>
-
-            <div className="mt-12 text-5xl">
-              🚪 Sala 03
-            </div>
-          </div>
-        ) : (
-          <div className="text-6xl text-slate-500">
-            Nenhum paciente chamado
-          </div>
-        )}
-      </div>
+      )}
     </main>
   );
 }
