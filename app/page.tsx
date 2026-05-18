@@ -7,12 +7,10 @@ import { supabase } from "@/lib/supabase";
 export default function Home() {
   const router = useRouter();
 
-  // INPUTS
   const [nome, setNome] = useState("");
   const [prioridade, setPrioridade] =
     useState("🟢 Normal");
 
-  // CONTADOR SENHA
   const [contador, setContador] =
     useState(1);
 
@@ -46,7 +44,7 @@ export default function Home() {
 
     carregarPacientes();
 
-    // HISTÓRICO
+    // CARREGA HISTÓRICO
     const historicoSalvo =
       localStorage.getItem(
         "historico"
@@ -59,7 +57,7 @@ export default function Home() {
     }
   }, []);
 
-  // CARREGAR PACIENTES
+  // CARREGA PACIENTES
   async function carregarPacientes() {
     const { data, error } =
       await supabase
@@ -74,7 +72,7 @@ export default function Home() {
     }
   }
 
-  // GERAR SENHA
+  // GERA SENHA
   function gerarSenha() {
     return `A${String(contador).padStart(
       3,
@@ -121,7 +119,7 @@ export default function Home() {
     }
   }
 
-  // CHAMAR PRÓXIMO
+  // CHAMAR PACIENTE
   async function chamarProximo() {
     if (fila.length === 0) return;
 
@@ -207,7 +205,7 @@ export default function Home() {
         )}
 
         {/* GRID */}
-        <div className="grid lg:grid-cols-2 gap-10">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
           {/* NOVO PACIENTE */}
           <div className="bg-white/5 backdrop-blur-xl border border-white/10 p-10 rounded-[40px] shadow-2xl">
             <h2 className="text-5xl font-black mb-8">
@@ -304,7 +302,7 @@ export default function Home() {
         </div>
 
         {/* BOTÃO HISTÓRICO */}
-        <div className="mt-10">
+        <div className="mt-10 flex justify-center">
           <button
             onClick={() =>
               setMostrarHistorico(
