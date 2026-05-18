@@ -7,15 +7,6 @@ import { supabase } from "@/lib/supabase";
 export default function Home() {
   const router = useRouter();
 
-  useEffect(() => {
-    const logado =
-      localStorage.getItem("logado");
-
-    if (!logado) {
-      router.push("/login");
-    }
-  }, []);
-
   const [nome, setNome] = useState("");
 
   const [prioridade, setPrioridade] =
@@ -37,11 +28,37 @@ export default function Home() {
   const [historico, setHistorico] =
     useState<any[]>([]);
 
-  // CARREGAR PACIENTES
+  // MOSTRAR HISTÓRICO
+  const [
+    mostrarHistorico,
+    setMostrarHistorico,
+  ] = useState(false);
+
+  // LOGIN + DADOS
   useEffect(() => {
+    const logado =
+      localStorage.getItem("logado");
+
+    if (!logado) {
+      router.push("/login");
+    }
+
     carregarPacientes();
+
+    // HISTÓRICO SALVO
+    const historicoSalvo =
+      localStorage.getItem(
+        "historico"
+      );
+
+    if (historicoSalvo) {
+      setHistorico(
+        JSON.parse(historicoSalvo)
+      );
+    }
   }, []);
 
+  // CARREGAR PACIENTES
   async function carregarPacientes() {
     const { data, error } =
       await supabase
@@ -56,6 +73,7 @@ export default function Home() {
     }
   }
 
+  // GERAR SENHA
   function gerarSenha() {
     return `A${String(contador).padStart(
       3,
@@ -63,6 +81,7 @@ export default function Home() {
     )}`;
   }
 
+  // ADICIONAR PACIENTE
   async function adicionarPaciente() {
     if (!nome.trim()) return;
 
@@ -101,6 +120,7 @@ export default function Home() {
     }
   }
 
+  // CHAMAR PACIENTE
   async function chamarProximo() {
     if (fila.length === 0) return;
 
@@ -109,19 +129,26 @@ export default function Home() {
     // TELÃO
     setPainel(proximo);
 
-    // HISTÓRICO
-    setHistorico((prev) => [
-      proximo,
-      ...prev,
-    ]);
-
     // TV
     localStorage.setItem(
       "ultimoPaciente",
       JSON.stringify(proximo)
     );
 
-    // REMOVE DO BANCO
+    // HISTÓRICO
+    const novoHistorico = [
+      proximo,
+      ...historico,
+    ];
+
+    setHistorico(novoHistorico);
+
+    localStorage.setItem(
+      "historico",
+      JSON.stringify(novoHistorico)
+    );
+
+    // REMOVE DA FILA
     await supabase
       .from("pacientes")
       .delete()
@@ -141,7 +168,8 @@ export default function Home() {
             </h1>
 
             <p className="text-slate-400 text-2xl mt-2">
-              Sistema Inteligente Hospitalar
+              Sistema Inteligente
+              Hospitalar
             </p>
           </div>
 
@@ -245,69 +273,90 @@ export default function Home() {
             </div>
 
             <div className="space-y-5">
-              {fila.map((paciente, index) => (
-                <div
-                  key={index}
-                  className="bg-black/30 border border-white/10 p-6 rounded-3xl"
-                >
-                  <div className="flex justify-between items-center">
-                    <div>
-                      <h3 className="text-4xl font-black text-cyan-400">
-                        {paciente.senha}
-                      </h3>
+              {fila.map(
+                (paciente, index) => (
+                  <div
+                    key={index}
+                    className="bg-black/30 border border-white/10 p-6 rounded-3xl"
+                  >
+                    <div className="flex justify-between items-center">
+                      <div>
+                        <h3 className="text-4xl font-black text-cyan-400">
+                          {
+                            paciente.senha
+                          }
+                        </h3>
 
-                      <p className="text-2xl mt-2 font-bold">
-                        {paciente.nome}
-                      </p>
+                        <p className="text-2xl mt-2 font-bold">
+                          {paciente.nome}
+                        </p>
 
-                      <p className="text-xl text-slate-300 mt-2">
-                        {
-                          paciente.prioridade
-                        }
-                      </p>
-                    </div>
+                        <p className="text-xl text-slate-300 mt-2">
+                          {
+                            paciente.prioridade
+                          }
+                        </p>
+                      </div>
 
-                    <div className="bg-blue-600 px-5 py-3 rounded-2xl text-xl font-bold">
-                      {paciente.sala}
+                      <div className="bg-blue-600 px-5 py-3 rounded-2xl text-xl font-bold">
+                        {paciente.sala}
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                )
+              )}
             </div>
           </div>
         </div>
 
-        {/* HISTÓRICO */}
-        <div className="mt-10 bg-white/5 backdrop-blur-xl border border-white/10 p-10 rounded-[40px] shadow-2xl">
-          <h2 className="text-4xl font-black mb-8">
-            📋 Histórico de Atendimentos
-          </h2>
-
-          <div className="space-y-4">
-            {historico.map(
-              (paciente, index) => (
-                <div
-                  key={index}
-                  className="bg-black/30 border border-white/10 p-5 rounded-3xl flex justify-between items-center"
-                >
-                  <div>
-                    <h3 className="text-2xl font-bold">
-                      {paciente.senha}
-                    </h3>
-
-                    <p className="text-slate-300">
-                      {paciente.nome}
-                    </p>
-                  </div>
-
-                  <div className="bg-green-500 px-4 py-2 rounded-2xl font-bold">
-                    Finalizado
-                  </div>
-                </div>
+        {/* BOTÃO HISTÓRICO */}
+        <div className="mt-10">
+          <button
+            onClick={() =>
+              setMostrarHistorico(
+                !mostrarHistorico
               )
-            )}
-          </div>
+            }
+            className="bg-purple-600 hover:bg-purple-700 transition px-8 py-4 rounded-3xl text-2xl font-black"
+          >
+            📋 Ver Histórico
+          </button>
         </div>
+
+        {/* HISTÓRICO */}
+        {mostrarHistorico && (
+          <div className="mt-6 bg-white/5 backdrop-blur-xl border border-white/10 p-10 rounded-[40px] shadow-2xl">
+            <h2 className="text-4xl font-black mb-8">
+              📋 Histórico de
+              Atendimentos
+            </h2>
+
+            <div className="space-y-4">
+              {historico.map(
+                (paciente, index) => (
+                  <div
+                    key={index}
+                    className="bg-black/30 border border-white/10 p-5 rounded-3xl flex justify-between items-center"
+                  >
+                    <div>
+                      <h3 className="text-2xl font-bold">
+                        {paciente.senha}
+                      </h3>
+
+                      <p className="text-slate-300">
+                        {paciente.nome}
+                      </p>
+                    </div>
+
+                    <div className="bg-green-500 px-4 py-2 rounded-2xl font-bold">
+                      Finalizado
+                    </div>
+                  </div>
+                )
+              )}
+            </div>
+          </div>
+        )}
       </div>
     </main>
   );
