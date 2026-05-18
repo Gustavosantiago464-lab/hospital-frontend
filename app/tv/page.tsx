@@ -3,18 +3,22 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 
-export default function TV() {
+export default function TVPage() {
   const [paciente, setPaciente] =
     useState<any>(null);
 
   async function carregarUltimo() {
-    const { data } = await supabase
-      .from("historico")
-      .select("*")
-      .order("id", {
-        ascending: false,
-      })
-      .limit(1);
+    const { data, error } =
+      await supabase
+        .from("historico")
+        .select("*")
+        .order("id", {
+          ascending: false,
+        })
+        .limit(1);
+
+    console.log(data);
+    console.log(error);
 
     if (data && data.length > 0) {
       setPaciente(data[0]);
@@ -35,7 +39,7 @@ export default function TV() {
   return (
     <main className="min-h-screen bg-black text-white flex items-center justify-center p-10">
       {paciente ? (
-        <div className="bg-green-500 w-full max-w-6xl rounded-[50px] p-20 text-center shadow-2xl">
+        <div className="bg-green-500 w-full max-w-5xl rounded-[50px] p-20 text-center shadow-2xl">
           <h1 className="text-6xl font-black mb-10">
             🔊 CHAMANDO PACIENTE
           </h1>
@@ -44,7 +48,7 @@ export default function TV() {
             {paciente.senha}
           </h2>
 
-          <p className="text-6xl mt-10 font-bold">
+          <p className="text-6xl font-bold mt-10">
             {paciente.nome}
           </p>
 
@@ -52,14 +56,20 @@ export default function TV() {
             {paciente.prioridade}
           </p>
 
-          <div className="mt-10 inline-block bg-white text-black px-14 py-7 rounded-[30px] text-6xl font-black">
+          <div className="mt-10 inline-block bg-white text-black px-10 py-5 rounded-3xl text-5xl font-black">
             🚪 {paciente.sala}
           </div>
         </div>
       ) : (
-        <h1 className="text-6xl font-black">
-          Nenhum paciente chamado
-        </h1>
+        <div className="text-center">
+          <h1 className="text-6xl font-black text-green-400">
+            🏥 PAINEL HOSPITALAR
+          </h1>
+
+          <p className="text-3xl text-slate-300 mt-5">
+            Nenhum paciente chamado
+          </p>
+        </div>
       )}
     </main>
   );
