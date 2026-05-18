@@ -7,11 +7,12 @@ import { supabase } from "@/lib/supabase";
 export default function Home() {
   const router = useRouter();
 
+  // INPUTS
   const [nome, setNome] = useState("");
-
   const [prioridade, setPrioridade] =
     useState("🟢 Normal");
 
+  // CONTADOR SENHA
   const [contador, setContador] =
     useState(1);
 
@@ -45,7 +46,7 @@ export default function Home() {
 
     carregarPacientes();
 
-    // HISTÓRICO SALVO
+    // HISTÓRICO
     const historicoSalvo =
       localStorage.getItem(
         "historico"
@@ -120,7 +121,7 @@ export default function Home() {
     }
   }
 
-  // CHAMAR PACIENTE
+  // CHAMAR PRÓXIMO
   async function chamarProximo() {
     if (fila.length === 0) return;
 
@@ -128,12 +129,6 @@ export default function Home() {
 
     // TELÃO
     setPainel(proximo);
-
-    // TV
-    localStorage.setItem(
-      "ultimoPaciente",
-      JSON.stringify(proximo)
-    );
 
     // HISTÓRICO
     const novoHistorico = [
@@ -168,8 +163,7 @@ export default function Home() {
             </h1>
 
             <p className="text-slate-400 text-2xl mt-2">
-              Sistema Inteligente
-              Hospitalar
+              Sistema Inteligente Hospitalar
             </p>
           </div>
 
