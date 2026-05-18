@@ -37,7 +37,7 @@ export default function Home() {
   const [historico, setHistorico] =
     useState<any[]>([]);
 
-  // CARREGA PACIENTES
+  // CARREGAR PACIENTES
   useEffect(() => {
     carregarPacientes();
   }, []);
@@ -87,7 +87,6 @@ export default function Home() {
       senha: gerarSenha(),
     };
 
-    // SALVA NO BANCO
     const { error } =
       await supabase
         .from("pacientes")
