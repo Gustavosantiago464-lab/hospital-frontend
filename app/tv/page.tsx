@@ -7,7 +7,7 @@ export default function TVPage() {
   const [paciente, setPaciente] =
     useState<any>(null);
 
-  async function carregarUltimo() {
+  async function carregarPaciente() {
     const { data, error } =
       await supabase
         .from("historico")
@@ -20,17 +20,21 @@ export default function TVPage() {
     console.log(data);
     console.log(error);
 
-    if (data && data.length > 0) {
+    if (
+      data &&
+      data.length > 0
+    ) {
       setPaciente(data[0]);
     }
   }
 
   useEffect(() => {
-    carregarUltimo();
+    carregarPaciente();
 
-    const intervalo = setInterval(() => {
-      carregarUltimo();
-    }, 2000);
+    const intervalo =
+      setInterval(() => {
+        carregarPaciente();
+      }, 2000);
 
     return () =>
       clearInterval(intervalo);
@@ -39,7 +43,7 @@ export default function TVPage() {
   return (
     <main className="min-h-screen bg-black text-white flex items-center justify-center p-10">
       {paciente ? (
-        <div className="bg-green-500 w-full max-w-5xl rounded-[50px] p-20 text-center shadow-2xl">
+        <div className="bg-green-500 w-full max-w-5xl rounded-[50px] p-20 text-center">
           <h1 className="text-6xl font-black mb-10">
             🔊 CHAMANDO PACIENTE
           </h1>
