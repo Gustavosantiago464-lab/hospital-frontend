@@ -1,8 +1,12 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
-import { supabase } from "@/lib/supabase";
+import { useEffect, useState } from "react";
+import { createClient } from "@supabase/supabase-js";
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+);
 
 type Paciente = {
   id?: number;
@@ -13,206 +17,160 @@ type Paciente = {
 };
 
 export default function Home() {
-  const router = useRouter();
-
   const [nome, setNome] = useState("");
-  const [prioridade, setPrioridade] =
-    useState("🟢 Normal");
-
-  const [contador, setContador] =
-    useState(1);
-
-  const [fila, setFila] = useState<
-    Paciente[]
-  >([]);
-
-  const [painel, setPainel] =
-    useState<Paciente | null>(null);
-
-  // LOGIN
-  useEffect(() => {
-    const logado =
-      localStorage.getItem("logado");
-
-    if (!logado) {
-      router.push("/login");
-    }
-
-    carregarPacientes();
-  }, []);
-
-  // CARREGAR FILA
-  async function carregarPacientes() {
-    const { data, error } =
-      await supabase
-        .from("pacientes")
-        .select("*")
-        .order("id", {
-          ascending: true,
-        });
-
-    if (!error && data) {
-      setFila(data);
-    }
-  }
+  const [prioridade, setPrioridade] = useState("Normal");
+  const [fila, setFila] = useState<Paciente[]>([]);
+  const [chamado, setChamado] = useState<Paciente | null>(null);
 
   // GERAR SENHA
-  function gerarSenha() {
-    return `A${String(contador).padStart(
-      3,
-      "0"
-    )}`;
-  }
+  const gerarSenha = () => {
+    const numero = fila.length + 1;
+    return `A${String(numero).padStart(3, "0")}`;
+  };
+
+  // CARREGAR FILA
+  const carregarFila = async () => {
+    const { data } = await supabase
+      .from("pacientes")
+      .select("*")
+      .order("id", { ascending: true });
+
+    if (data) {
+      setFila(data);
+    }
+  };
 
   // ADICIONAR PACIENTE
-  async function adicionarPaciente() {
-    if (!nome.trim()) return;
+  const adicionarPaciente = async () => {
+    if (!nome) return;
 
-    const salas = [
-      "Sala 01",
-      "Sala 02",
-      "Sala 03",
-      "Sala 04",
-    ];
-
-    const novaSala =
-      salas[
-        Math.floor(
-          Math.random() * salas.length
-        )
-      ];
+    const senha = gerarSenha();
 
     const novoPaciente = {
       nome,
       prioridade,
-      sala: novaSala,
-      senha: gerarSenha(),
+      sala: `Sala 0${Math.floor(Math.random() * 5) + 1}`,
+      senha,
     };
 
-    try {
-      const resposta =
-        await supabase
-          .from("pacientes")
-          .insert([novoPaciente]);
+    await supabase.from("pacientes").insert([novoPaciente]);
 
-      console.log(resposta);
-
-      carregarPacientes();
-
-      setContador(contador + 1);
-
-      setNome("");
-    } catch (erro) {
-      console.log(erro);
-    }
-  }
+    setNome("");
+    carregarFila();
+  };
 
   // CHAMAR PRÓXIMO
-  async function chamarProximo() {
+  const chamarProximo = async () => {
     if (fila.length === 0) return;
 
-    const proximo = fila[0];
+    const paciente = fila[0];
 
-    setPainel(proximo);
+    setChamado(paciente);
 
-    try {
-      // SALVA HISTÓRICO
-      const resposta =
-        await supabase
-          .from("historico")
-          .insert([
-            {
-              nome: proximo.nome,
-              prioridade:
-                proximo.prioridade,
-              sala: proximo.sala,
-              senha: proximo.senha,
-            },
-          ]);
+    // REMOVE DA FILA
+    const novaFila = fila.slice(1);
+    setFila(novaFila);
 
-      console.log(resposta);
+    // SALVA NO HISTÓRICO
+    await supabase.from("historico").insert([
+      {
+        nome: paciente.nome,
+        prioridade: paciente.prioridade,
+        sala: paciente.sala,
+        senha: paciente.senha,
+      },
+    ]);
 
-      // REMOVE DA FILA
-      await supabase
-        .from("pacientes")
-        .delete()
-        .eq("id", proximo.id);
+    // REMOVE DA TABELA PACIENTES
+    await supabase
+      .from("pacientes")
+      .delete()
+      .eq("id", paciente.id);
 
-      carregarPacientes();
-    } catch (erro) {
-      console.log(erro);
-    }
-  }
+    // SALVA LOCAL
+    localStorage.setItem(
+      "ultimoPaciente",
+      JSON.stringify(paciente)
+    );
+  };
+
+  // TEMPO REAL
+  useEffect(() => {
+    carregarFila();
+
+    const channel = supabase
+      .channel("pacientes")
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "pacientes",
+        },
+        () => {
+          carregarFila();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, []);
 
   return (
-    <main className="min-h-screen bg-[#050816] text-white p-10">
-      <div className="max-w-7xl mx-auto">
-        {/* TOPO */}
-        <div className="flex justify-between items-center mb-10">
+    <main className="min-h-screen bg-black text-white p-8">
+      <div className="max-w-6xl mx-auto">
+        <div className="flex items-center justify-between mb-10">
           <div>
-            <h1 className="text-7xl font-black">
+            <h1 className="text-5xl font-bold">
               🏥 Hospital AI
             </h1>
 
-            <p className="text-slate-400 text-2xl mt-2">
+            <p className="text-gray-400 mt-2">
               Sistema Inteligente Hospitalar
             </p>
           </div>
-
-          <button
-            onClick={() => {
-              localStorage.removeItem(
-                "logado"
-              );
-
-              router.push("/login");
-            }}
-            className="bg-red-500 hover:bg-red-600 transition px-8 py-4 rounded-3xl text-xl font-bold"
-          >
-            Sair
-          </button>
         </div>
 
-        {/* TELÃO */}
-        {painel && (
-          <div className="bg-green-500 rounded-[40px] p-12 mb-10 text-center animate-pulse shadow-2xl">
-            <h2 className="text-5xl font-black mb-5">
-              🔊 CHAMANDO PACIENTE
+        {/* PACIENTE CHAMADO */}
+        {chamado && (
+          <div className="bg-green-500 rounded-3xl p-10 text-center mb-10">
+            <h2 className="text-5xl font-bold mb-4">
+              📢 CHAMANDO PACIENTE
             </h2>
 
-            <h1 className="text-9xl font-black text-white">
-              {painel.senha}
+            <h1 className="text-9xl font-black">
+              {chamado.senha}
             </h1>
 
-            <p className="text-5xl mt-6 font-bold">
-              {painel.nome}
+            <p className="text-4xl mt-4">
+              {chamado.nome}
             </p>
 
-            <p className="text-3xl mt-4">
-              {painel.prioridade}
+            <p className="text-2xl mt-3">
+              🟢 {chamado.prioridade}
             </p>
 
-            <div className="mt-8 inline-block bg-white text-black px-10 py-5 rounded-3xl text-5xl font-black">
-              🚪 {painel.sala}
+            <div className="bg-white text-black inline-block px-8 py-4 rounded-2xl mt-6 text-4xl font-bold">
+              🚪 {chamado.sala}
             </div>
           </div>
         )}
 
-        {/* GRID */}
-        <div className="grid lg:grid-cols-2 gap-10">
+        <div className="grid md:grid-cols-2 gap-8">
           {/* NOVO PACIENTE */}
-          <div className="bg-white/5 backdrop-blur-xl border border-white/10 p-10 rounded-[40px] shadow-2xl">
-            <h2 className="text-5xl font-black mb-8">
+          <div className="bg-zinc-900 p-6 rounded-3xl">
+            <h2 className="text-4xl font-bold mb-6">
               Novo Paciente
             </h2>
 
             <input
+              type="text"
               placeholder="Nome do paciente"
               value={nome}
-              onChange={(e) =>
-                setNome(e.target.value)
-              }
-              className="w-full bg-black/30 border border-white/10 p-5 rounded-3xl text-2xl mb-6 outline-none"
+              onChange={(e) => setNome(e.target.value)}
+              className="w-full p-4 rounded-xl bg-zinc-800 mb-4 text-xl"
             />
 
             <select
@@ -220,70 +178,58 @@ export default function Home() {
               onChange={(e) =>
                 setPrioridade(e.target.value)
               }
-              className="w-full bg-black/30 border border-white/10 p-5 rounded-3xl text-2xl mb-8"
+              className="w-full p-4 rounded-xl bg-zinc-800 mb-4 text-xl"
             >
-              <option>
-                🟢 Normal
-              </option>
-
-              <option>
-                🟡 Urgente
-              </option>
-
-              <option>
-                🔴 Emergência
-              </option>
+              <option>Normal</option>
+              <option>Urgente</option>
+              <option>Emergência</option>
             </select>
 
             <button
               onClick={adicionarPaciente}
-              className="w-full bg-blue-600 hover:bg-blue-700 transition p-5 rounded-3xl text-2xl font-black"
+              className="w-full bg-blue-600 hover:bg-blue-700 transition p-4 rounded-xl text-2xl font-bold"
             >
-              ➕ Adicionar Paciente
+              + Adicionar Paciente
             </button>
           </div>
 
           {/* FILA */}
-          <div className="bg-white/5 backdrop-blur-xl border border-white/10 p-10 rounded-[40px] shadow-2xl">
-            <div className="flex justify-between items-center mb-8">
-              <h2 className="text-5xl font-black">
+          <div className="bg-zinc-900 p-6 rounded-3xl">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-4xl font-bold">
                 Fila Hospitalar
               </h2>
 
               <button
                 onClick={chamarProximo}
-                className="bg-green-500 hover:bg-green-600 transition px-8 py-5 rounded-3xl text-2xl font-black"
+                className="bg-green-500 hover:bg-green-600 transition px-6 py-4 rounded-2xl text-xl font-bold"
               >
-                🔊 Chamar Próximo
+                📢 Chamar Próximo
               </button>
             </div>
 
-            <div className="space-y-5">
+            <div className="space-y-4">
               {fila.map((paciente) => (
                 <div
                   key={paciente.id}
-                  className="bg-black/30 border border-white/10 p-6 rounded-3xl"
+                  className="bg-zinc-800 p-5 rounded-2xl flex items-center justify-between"
                 >
-                  <div className="flex justify-between items-center">
-                    <div>
-                      <h3 className="text-4xl font-black text-cyan-400">
-                        {paciente.senha}
-                      </h3>
+                  <div>
+                    <h3 className="text-3xl font-bold text-cyan-400">
+                      {paciente.senha}
+                    </h3>
 
-                      <p className="text-2xl mt-2 font-bold">
-                        {paciente.nome}
-                      </p>
+                    <p className="text-2xl">
+                      {paciente.nome}
+                    </p>
 
-                      <p className="text-xl text-slate-300 mt-2">
-                        {
-                          paciente.prioridade
-                        }
-                      </p>
-                    </div>
+                    <p className="text-lg text-green-400">
+                      🟢 {paciente.prioridade}
+                    </p>
+                  </div>
 
-                    <div className="bg-blue-600 px-5 py-3 rounded-2xl text-xl font-bold">
-                      {paciente.sala}
-                    </div>
+                  <div className="bg-blue-600 px-5 py-3 rounded-xl text-xl font-bold">
+                    {paciente.sala}
                   </div>
                 </div>
               ))}
