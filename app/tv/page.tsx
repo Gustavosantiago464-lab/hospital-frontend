@@ -1,9 +1,15 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { supabase } from "@/lib/supabase";
+import { createClient } from "@supabase/supabase-js";
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+);
 
 type Paciente = {
+  id?: number;
   nome: string;
   prioridade: string;
   sala: string;
@@ -11,68 +17,82 @@ type Paciente = {
 };
 
 export default function TVPage() {
-  const [paciente, setPaciente] =
-    useState<Paciente | null>(null);
+  const [paciente, setPaciente] = useState<Paciente | null>(null);
 
-  async function carregarPainel() {
+  const carregarUltimo = async () => {
     const { data, error } = await supabase
       .from("historico")
       .select("*")
-      .order("id", {
-        ascending: false,
-      })
-      .limit(1);
+      .order("id", { ascending: false })
+      .limit(1)
+      .single();
 
-    console.log(data);
-    console.log(error);
+    console.log("PACIENTE TV:", data);
+    console.log("ERRO:", error);
 
-    if (data && data.length > 0) {
-      setPaciente(data[0]);
+    if (data) {
+      setPaciente(data);
     }
-  }
+  };
 
   useEffect(() => {
-    carregarPainel();
+    carregarUltimo();
 
-    const intervalo = setInterval(() => {
-      carregarPainel();
-    }, 2000);
+    const channel = supabase
+      .channel("tv-historico")
+      .on(
+        "postgres_changes",
+        {
+          event: "INSERT",
+          schema: "public",
+          table: "historico",
+        },
+        (payload) => {
+          console.log("NOVO PACIENTE:", payload.new);
+          setPaciente(payload.new as Paciente);
+        }
+      )
+      .subscribe();
 
-    return () =>
-      clearInterval(intervalo);
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, []);
 
   return (
-    <main className="min-h-screen bg-black text-white flex items-center justify-center p-10">
+    <main className="min-h-screen bg-black flex items-center justify-center text-white p-10">
       {paciente ? (
-        <div className="bg-green-500 w-full max-w-5xl rounded-[50px] p-16 text-center shadow-2xl">
-          <h1 className="text-6xl font-black mb-8">
-            🔊 CHAMANDO PACIENTE
+        <div className="bg-green-500 w-full max-w-5xl rounded-3xl p-16 text-center shadow-2xl">
+          <h1 className="text-6xl font-bold mb-8">
+            📢 CHAMANDO PACIENTE
           </h1>
 
-          <h2 className="text-[150px] font-black">
+          <h2 className="text-[180px] leading-none font-black">
             {paciente.senha}
           </h2>
 
-          <p className="text-6xl font-bold mt-6">
+          <p className="text-6xl mt-8 font-bold">
             {paciente.nome}
           </p>
 
-          <p className="text-4xl mt-4">
-            {paciente.prioridade}
+          <p className="text-4xl mt-6">
+            🟢 {paciente.prioridade}
           </p>
 
-          <div className="mt-10 inline-block bg-white text-black px-12 py-6 rounded-3xl text-5xl font-black">
+          <div className="bg-white text-black inline-block px-10 py-6 rounded-2xl mt-10 text-5xl font-bold">
             🚪 {paciente.sala}
           </div>
         </div>
       ) : (
-        <h1 className="text-5xl font-black text-green-400">
-          🏥 PAINEL HOSPITALAR
-          <p className="text-3xl text-white mt-6">
+        <div className="text-center">
+          <h1 className="text-6xl font-bold text-green-400">
+            🏥 PAINEL HOSPITALAR
+          </h1>
+
+          <p className="text-4xl text-gray-300 mt-6">
             Nenhum paciente chamado
           </p>
-        </h1>
+        </div>
       )}
     </main>
   );
