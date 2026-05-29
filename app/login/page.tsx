@@ -1,19 +1,29 @@
 "use client";
 
 import { useState } from "react";
+import { createClient } from "@supabase/supabase-js";
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+);
 
 export default function LoginPage() {
-  const [usuario, setUsuario] = useState("");
+  const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
 
-  const fazerLogin = () => {
-    if (usuario === "admin" && senha === "123") {
-      localStorage.setItem("logado", "true");
+  const fazerLogin = async () => {
+    const { error } = await supabase.auth.signInWithPassword({
+      email,
+      password: senha,
+    });
 
-      window.location.href = "/dashboard";
-    } else {
-      alert("Usuário ou senha inválidos");
+    if (error) {
+      alert("Email ou senha inválidos");
+      return;
     }
+
+    window.location.href = "/dashboard";
   };
 
   return (
@@ -28,10 +38,10 @@ export default function LoginPage() {
         </p>
 
         <input
-          type="text"
-          placeholder="Usuário"
-          value={usuario}
-          onChange={(e) => setUsuario(e.target.value)}
+          type="email"
+          placeholder="Email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
           className="w-full p-4 rounded-xl bg-blue-900/60 mb-4 outline-none"
         />
 

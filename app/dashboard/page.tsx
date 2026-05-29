@@ -23,11 +23,17 @@ export default function Dashboard() {
   const [chamado, setChamado] = useState<Paciente | null>(null);
 
   useEffect(() => {
-    const logado = localStorage.getItem("logado");
-
-    if (!logado) {
-      window.location.href = "/login";
-    }
+    const verificarSessao = async () => {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+  
+      if (!session) {
+        window.location.href = "/login";
+      }
+    };
+  
+    verificarSessao();
   }, []);
 
   const gerarSenha = () => {
@@ -131,8 +137,8 @@ export default function Dashboard() {
             </p>
 
             <button
-              onClick={() => {
-                localStorage.removeItem("logado");
+              onClick={async () => {
+                await supabase.auth.signOut();
                 window.location.href = "/login";
               }}
               className="mt-4 bg-red-600 hover:bg-red-700 px-5 py-2 rounded-xl font-bold"
