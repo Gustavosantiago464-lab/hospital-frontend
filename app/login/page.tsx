@@ -59,6 +59,31 @@ export default function LoginPage() {
         >
           Entrar
         </button>
+        <button
+  onClick={async () => {
+    const email = prompt("Digite seu email:");
+
+    if (!email) return;
+
+    const { error } = await supabase.auth.resetPasswordForEmail(
+      email,
+      {
+        redirectTo:
+          window.location.origin +
+          "/reset-password",
+      }
+    );
+
+    if (error) {
+      alert(error.message);
+    } else {
+      alert("Email de recuperação enviado!");
+    }
+  }}
+  className="mt-4 w-full text-blue-300 hover:text-blue-200"
+>
+  Esqueci minha senha
+</button>       
       </div>
     </main>
   );
