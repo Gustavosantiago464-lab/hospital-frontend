@@ -211,6 +211,15 @@ export default function Dashboard() {
   >
     📋 Histórico
   </button>
+  <button
+  onClick={() => {
+    window.location.href = "/relatorios";
+  }}
+  className="bg-purple-600 hover:bg-purple-700 px-5 py-2 rounded-xl font-bold"
+>
+  📊 Relatórios
+</button>
+
 </div>   
           </div>
         </div>
