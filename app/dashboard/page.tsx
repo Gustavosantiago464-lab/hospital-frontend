@@ -177,23 +177,26 @@ export default function Dashboard() {
               Sistema Inteligente Hospitalar
             </p>
 
-            <button
-              onClick={async () => {
-                await supabase.auth.signOut();
-                window.location.href = "/login";
-              }}
-              className="mt-4 bg-red-600 hover:bg-red-700 px-5 py-2 rounded-xl font-bold"
-            >
-              Sair
-              <button
-  onClick={() => {
-    window.location.href = "/historico";
-  }}
-  className="mt-4 ml-4 bg-blue-600 hover:bg-blue-700 px-5 py-2 rounded-xl font-bold"
->
-  📋 Histórico
-</button>
-            </button>
+            <div className="mt-4 flex gap-4">
+  <button
+    onClick={async () => {
+      await supabase.auth.signOut();
+      window.location.href = "/login";
+    }}
+    className="bg-red-600 hover:bg-red-700 px-5 py-2 rounded-xl font-bold"
+  >
+    Sair
+  </button>
+
+  <button
+    onClick={() => {
+      window.location.href = "/historico";
+    }}
+    className="bg-blue-600 hover:bg-blue-700 px-5 py-2 rounded-xl font-bold"
+  >
+    📋 Histórico
+  </button>
+</div>   
           </div>
         </div>
 
