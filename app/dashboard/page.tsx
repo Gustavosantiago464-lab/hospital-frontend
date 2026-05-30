@@ -22,6 +22,7 @@ export default function Dashboard() {
   const [fila, setFila] = useState<Paciente[]>([]);
   const [chamado, setChamado] = useState<Paciente | null>(null);
   const [atendidosHoje, setAtendidosHoje] = useState(0);
+  const [atendidosTotal, setAtendidosTotal] = useState(0);
 
   useEffect(() => {
     const verificarSessao = async () => {
@@ -55,9 +56,13 @@ export default function Dashboard() {
   const carregarEstatisticas = async () => {
     const { count } = await supabase
       .from("historico")
-      .select("*", { count: "exact", head: true });
+      .select("*", {
+        count: "exact",
+        head: true,
+      });
   
     setAtendidosHoje(count || 0);
+    setAtendidosTotal(count || 0);
   };
 
   const adicionarPaciente = async () => {
@@ -136,7 +141,7 @@ export default function Dashboard() {
   return (
     <main className="min-h-screen bg-black text-white p-8">
       <div className="max-w-6xl mx-auto">
-      <div className="grid md:grid-cols-3 gap-4 mb-8">
+      <div className="grid md:grid-cols-4 gap-4 mb-8">
   <div className="bg-zinc-900 p-6 rounded-3xl">
     <h3 className="text-gray-400">
       Pacientes na fila
@@ -149,11 +154,21 @@ export default function Dashboard() {
 
   <div className="bg-zinc-900 p-6 rounded-3xl">
     <h3 className="text-gray-400">
-      Atendidos
+      Total Atendidos
     </h3>
 
     <p className="text-5xl font-bold text-green-400">
       {atendidosHoje}
+    </p>
+  </div>
+
+  <div className="bg-zinc-900 p-6 rounded-3xl">
+    <h3 className="text-gray-400">
+      Histórico
+    </h3>
+
+    <p className="text-5xl font-bold text-purple-400">
+      {atendidosTotal}
     </p>
   </div>
 
