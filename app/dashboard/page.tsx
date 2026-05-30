@@ -144,6 +144,14 @@ export default function Dashboard() {
               className="mt-4 bg-red-600 hover:bg-red-700 px-5 py-2 rounded-xl font-bold"
             >
               Sair
+              <button
+  onClick={() => {
+    window.location.href = "/historico";
+  }}
+  className="mt-4 ml-4 bg-blue-600 hover:bg-blue-700 px-5 py-2 rounded-xl font-bold"
+>
+  📋 Histórico
+</button>
             </button>
           </div>
         </div>
