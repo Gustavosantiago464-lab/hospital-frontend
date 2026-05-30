@@ -21,6 +21,7 @@ export default function Dashboard() {
   const [prioridade, setPrioridade] = useState("Normal");
   const [fila, setFila] = useState<Paciente[]>([]);
   const [chamado, setChamado] = useState<Paciente | null>(null);
+  const [atendidosHoje, setAtendidosHoje] = useState(0);
 
   useEffect(() => {
     const verificarSessao = async () => {
@@ -50,6 +51,13 @@ export default function Dashboard() {
     if (data) {
       setFila(data);
     }
+  };
+  const carregarEstatisticas = async () => {
+    const { count } = await supabase
+      .from("historico")
+      .select("*", { count: "exact", head: true });
+  
+    setAtendidosHoje(count || 0);
   };
 
   const adicionarPaciente = async () => {
@@ -93,6 +101,7 @@ export default function Dashboard() {
       .from("pacientes")
       .delete()
       .eq("id", paciente.id);
+      carregarEstatisticas();
 
     localStorage.setItem(
       "ultimoPaciente",
@@ -102,6 +111,7 @@ export default function Dashboard() {
 
   useEffect(() => {
     carregarFila();
+    carregarEstatisticas();
 
     const channel = supabase
       .channel("pacientes")
@@ -126,6 +136,37 @@ export default function Dashboard() {
   return (
     <main className="min-h-screen bg-black text-white p-8">
       <div className="max-w-6xl mx-auto">
+      <div className="grid md:grid-cols-3 gap-4 mb-8">
+  <div className="bg-zinc-900 p-6 rounded-3xl">
+    <h3 className="text-gray-400">
+      Pacientes na fila
+    </h3>
+
+    <p className="text-5xl font-bold text-cyan-400">
+      {fila.length}
+    </p>
+  </div>
+
+  <div className="bg-zinc-900 p-6 rounded-3xl">
+    <h3 className="text-gray-400">
+      Atendidos
+    </h3>
+
+    <p className="text-5xl font-bold text-green-400">
+      {atendidosHoje}
+    </p>
+  </div>
+
+  <div className="bg-zinc-900 p-6 rounded-3xl">
+    <h3 className="text-gray-400">
+      Última senha
+    </h3>
+
+    <p className="text-5xl font-bold text-yellow-400">
+      {chamado?.senha || "-"}
+    </p>
+  </div>
+</div>
         <div className="flex items-center justify-between mb-10">
           <div>
             <h1 className="text-5xl font-bold">
