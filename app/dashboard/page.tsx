@@ -94,13 +94,14 @@ export default function Dashboard() {
     setFila(novaFila);
 
     await supabase.from("historico").insert([
-      {
-        nome: paciente.nome,
-        prioridade: paciente.prioridade,
-        sala: paciente.sala,
-        senha: paciente.senha,
-      },
-    ]);
+        {
+          nome: paciente.nome,
+          prioridade: paciente.prioridade,
+          sala: paciente.sala,
+          senha: paciente.senha,
+          data_atendimento: new Date().toISOString(),
+        },
+      ]);
 
     await supabase
       .from("pacientes")
