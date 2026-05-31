@@ -18,6 +18,19 @@ export default function RelatoriosPage() {
   useEffect(() => {
     carregarDados();
   }, []);
+  const gerarPDF = () => {
+    const pdf = new jsPDF();
+  
+    pdf.setFontSize(20);
+    pdf.text("Relatorio Hospital AI", 20, 20);
+  
+    pdf.text(`Total: ${total}`, 20, 50);
+    pdf.text(`Normal: ${normal}`, 20, 65);
+    pdf.text(`Urgente: ${urgente}`, 20, 80);
+    pdf.text(`Emergencia: ${emergencia}`, 20, 95);
+  
+    pdf.save("relatorio-hospital.pdf");
+  };
 
   const carregarDados = async () => {
     const { data } = await supabase
@@ -43,7 +56,12 @@ export default function RelatoriosPage() {
       <h1 className="text-5xl font-bold mb-10">
         📊 Relatórios
       </h1>
-
+      <button
+  onClick={gerarPDF}
+  className="mb-8 bg-green-600 hover:bg-green-700 px-6 py-3 rounded-xl font-bold"
+>
+  📄 Baixar PDF
+</button>
       <div className="grid md:grid-cols-4 gap-6">
         <div className="bg-zinc-900 p-6 rounded-3xl">
           <h2 className="text-gray-400">
