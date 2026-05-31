@@ -45,6 +45,14 @@ export default function HistoricoPage() {
             <p>Prioridade: {paciente.prioridade}</p>
 
             <p>Sala: {paciente.sala}</p>
+            <p>
+  Data:{" "}
+  {paciente.data_atendimento
+    ? new Date(
+        paciente.data_atendimento
+      ).toLocaleString("pt-BR")
+    : "-"}
+</p>
           </div>
         ))}
       </div>
