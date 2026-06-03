@@ -273,11 +273,11 @@ setDadosGraficoDia(graficoDia);
     height={300}
   >
     <BarChart data={dadosGrafico}>
-      <XAxis dataKey="nome" />
+      <XAxis dataKey="dia" />
       <YAxis />
       <Tooltip />
       <Bar
-        dataKey="total"
+        dataKey="atendimentos"
       />
     </BarChart>
   </ResponsiveContainer>
