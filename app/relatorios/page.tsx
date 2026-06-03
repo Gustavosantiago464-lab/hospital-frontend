@@ -23,6 +23,7 @@ export default function RelatoriosPage() {
   const [urgente, setUrgente] = useState(0);
   const [emergencia, setEmergencia] = useState(0);
   const [historico, setHistorico] = useState<any[]>([]);
+  const [dadosGraficoDia, setDadosGraficoDia] = useState<any[]>([]);
 
   const dadosGrafico = [
     { nome: "Normal", total: normal },
@@ -62,6 +63,24 @@ export default function RelatoriosPage() {
         (p) => p.prioridade === "Emergência"
       ).length
     );
+    const agrupado: any = {};
+
+data.forEach((item) => {
+  const dia = new Date(
+    item.data_atendimento
+  ).toLocaleDateString("pt-BR");
+
+  agrupado[dia] = (agrupado[dia] || 0) + 1;
+});
+
+const graficoDia = Object.keys(agrupado).map(
+  (dia) => ({
+    dia,
+    atendimentos: agrupado[dia],
+  })
+);
+
+setDadosGraficoDia(graficoDia);
   };
 
   const gerarPDF = () => {
@@ -244,6 +263,25 @@ export default function RelatoriosPage() {
           </ResponsiveContainer>
         </div>
       </div>
+      <div className="bg-zinc-900 p-6 rounded-3xl mt-10">
+  <h2 className="text-2xl font-bold mb-6">
+    📈 Atendimentos por Dia
+  </h2>
+
+  <ResponsiveContainer
+    width="100%"
+    height={300}
+  >
+    <BarChart data={dadosGrafico}>
+      <XAxis dataKey="dia" />
+      <YAxis />
+      <Tooltip />
+      <Bar
+        dataKey="atendimentos"
+      />
+    </BarChart>
+  </ResponsiveContainer>
+</div>
     </main>
   );
 }
