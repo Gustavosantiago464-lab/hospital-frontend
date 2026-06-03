@@ -66,7 +66,17 @@ export default function HistoricoPage() {
 
             <p>Sala: {paciente.sala}</p>
             <p>
-  Data: {paciente.data_atendimento}
+            <p>
+  Data:{" "}
+  {paciente.data_atendimento
+    ? new Date(paciente.data_atendimento).toLocaleString(
+        "pt-BR",
+        {
+          timeZone: "America/Sao_Paulo",
+        }
+      )
+    : "-"}
+</p>
 </p>
           </div>
         ))}
