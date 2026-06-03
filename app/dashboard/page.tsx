@@ -99,7 +99,7 @@ export default function Dashboard() {
           prioridade: paciente.prioridade,
           sala: paciente.sala,
           senha: paciente.senha,
-          data_atendimento: "2025-05-30 12:00:00",
+          data_atendimento: new Date().toISOString(),
         },
       ]);
 
