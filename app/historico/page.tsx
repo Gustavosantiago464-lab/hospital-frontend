@@ -46,13 +46,7 @@ export default function HistoricoPage() {
 
             <p>Sala: {paciente.sala}</p>
             <p>
-  Data:{" "}
-  {paciente.data_atendimento
-  ? new Date(
-      new Date(paciente.data_atendimento).getTime() -
-        3 * 60 * 60 * 1000
-    ).toLocaleString("pt-BR")
-  : "-"}
+  Data: {paciente.data_atendimento}
 </p>
           </div>
         ))}
