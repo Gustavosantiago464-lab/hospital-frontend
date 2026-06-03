@@ -48,12 +48,11 @@ export default function HistoricoPage() {
             <p>
   Data:{" "}
   {paciente.data_atendimento
-    ? new Date(
-        paciente.data_atendimento
-      ).toLocaleString("pt-BR", {
-        timeZone: "America/Sao_Paulo",
-      })
-    : "-"}
+  ? new Date(
+      new Date(paciente.data_atendimento).getTime() -
+        3 * 60 * 60 * 1000
+    ).toLocaleString("pt-BR")
+  : "-"}
 </p>
           </div>
         ))}
