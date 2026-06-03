@@ -99,7 +99,9 @@ export default function Dashboard() {
           prioridade: paciente.prioridade,
           sala: paciente.sala,
           senha: paciente.senha,
-          data_atendimento: new Date(),
+          data_atendimento: new Date(
+            Date.now() - 3 * 60 * 60 * 1000
+          ),
         },
       ]);
 
