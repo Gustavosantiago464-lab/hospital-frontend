@@ -3,6 +3,14 @@
 import { useEffect, useState } from "react";
 import { createClient } from "@supabase/supabase-js";
 import jsPDF from "jspdf";
+import {
+    BarChart,
+    Bar,
+    XAxis,
+    YAxis,
+    Tooltip,
+    ResponsiveContainer,
+  } from "recharts";
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -15,6 +23,12 @@ export default function RelatoriosPage() {
   const [urgente, setUrgente] = useState(0);
   const [emergencia, setEmergencia] = useState(0);
   const [historico, setHistorico] = useState<any[]>([]);
+
+  const dadosGrafico = [
+    { nome: "Normal", total: normal },
+    { nome: "Urgente", total: urgente },
+    { nome: "Emergência", total: emergencia },
+  ];
 
   useEffect(() => {
     carregarDados();
@@ -212,6 +226,22 @@ export default function RelatoriosPage() {
               </div>
             ))}
           </div>
+        </div>
+      </div>
+      <div className="bg-zinc-900 rounded-3xl p-6 mt-10">
+        <h2 className="text-3xl font-bold mb-6">
+          📈 Atendimentos por Prioridade
+        </h2>
+
+        <div style={{ width: "100%", height: 350 }}>
+          <ResponsiveContainer>
+            <BarChart data={dadosGrafico}>
+              <XAxis dataKey="nome" />
+              <YAxis />
+              <Tooltip />
+              <Bar dataKey="total" />
+            </BarChart>
+          </ResponsiveContainer>
         </div>
       </div>
     </main>
