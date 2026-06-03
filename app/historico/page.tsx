@@ -10,6 +10,7 @@ const supabase = createClient(
 
 export default function HistoricoPage() {
   const [historico, setHistorico] = useState<any[]>([]);
+  const [busca, setBusca] = useState("");
 
   const carregarHistorico = async () => {
     const { data } = await supabase
@@ -29,9 +30,28 @@ export default function HistoricoPage() {
       <h1 className="text-5xl font-bold mb-8">
         📋 Histórico de Atendimentos
       </h1>
+      <input
+  type="text"
+  placeholder="🔍 Buscar paciente, senha ou sala..."
+  value={busca}
+  onChange={(e) => setBusca(e.target.value)}
+  className="w-full p-4 rounded-xl bg-zinc-900 mb-6 text-white"
+/>
 
       <div className="space-y-4">
-        {historico.map((paciente) => (
+      {historico
+  .filter((paciente) =>
+    paciente.nome
+      ?.toLowerCase()
+      .includes(busca.toLowerCase()) ||
+    paciente.senha
+      ?.toLowerCase()
+      .includes(busca.toLowerCase()) ||
+    paciente.sala
+      ?.toLowerCase()
+      .includes(busca.toLowerCase())
+  )
+  .map((paciente) => (
           <div
             key={paciente.id}
             className="bg-zinc-900 p-5 rounded-2xl"
