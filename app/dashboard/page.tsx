@@ -140,6 +140,31 @@ export default function Dashboard() {
     setModoEdicao(false);
     carregarFila();
   };
+  const excluirPaciente = async () => {
+    if (!pacienteSelecionado) return;
+  
+    const confirmar = confirm(
+      "Tem certeza que deseja excluir este paciente?"
+    );
+  
+    if (!confirmar) return;
+  
+    const { error } = await supabase
+      .from("pacientes")
+      .delete()
+      .eq("id", pacienteSelecionado.id);
+  
+    if (error) {
+      alert(error.message);
+      return;
+    }
+  
+    alert("Paciente excluído com sucesso!");
+  
+    setPacienteSelecionado(null);
+    setModoEdicao(false);
+    carregarFila();
+  };
   const chamarProximo = async () => {
     if (fila.length === 0) return;
 
@@ -489,15 +514,23 @@ export default function Dashboard() {
     ✏️ Editar Paciente
   </button>
 )}
-      <button
-      onClick={() => {
-        setPacienteSelecionado(null);
-        setModoEdicao(false);
-      }}
-        className="mt-6 w-full bg-red-600 p-3 rounded-xl"
-      >
-        Fechar
-      </button>
+
+<button
+  onClick={excluirPaciente}
+  className="mb-3 w-full bg-red-700 hover:bg-red-800 p-3 rounded-xl font-bold"
+>
+  🗑️ Excluir Paciente
+</button>
+
+<button
+  onClick={() => {
+    setPacienteSelecionado(null);
+    setModoEdicao(false);
+  }}
+  className="mt-6 w-full bg-red-600 p-3 rounded-xl"
+>
+  Fechar
+</button>
     </div>
   </div>
 )}
