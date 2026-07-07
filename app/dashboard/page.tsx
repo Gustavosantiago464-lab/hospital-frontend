@@ -417,8 +417,6 @@ export default function Dashboard() {
     <div
     key={paciente.id}
     onClick={() => {
-      alert("clicou");
-      console.log(paciente);
       setPacienteSelecionado(paciente);
     }}
     className="bg-zinc-800 p-5 rounded-2xl flex items-center justify-between cursor-pointer hover:bg-zinc-700"
@@ -492,7 +490,10 @@ export default function Dashboard() {
   </button>
 )}
       <button
-        onClick={() => setPacienteSelecionado(null)}
+      onClick={() => {
+        setPacienteSelecionado(null);
+        setModoEdicao(false);
+      }}
         className="mt-6 w-full bg-red-600 p-3 rounded-xl"
       >
         Fechar
