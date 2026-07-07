@@ -115,7 +115,31 @@ export default function Dashboard() {
     setNome("");
     carregarFila();
   };
-
+  const salvarPaciente = async () => {
+    if (!pacienteSelecionado) return;
+  
+    const { error } = await supabase
+      .from("pacientes")
+      .update({
+        nome: pacienteSelecionado.nome,
+        cpf: pacienteSelecionado.cpf,
+        telefone: pacienteSelecionado.telefone,
+        data_nascimento: pacienteSelecionado.data_nascimento,
+        sexo: pacienteSelecionado.sexo,
+        alergias: pacienteSelecionado.alergias,
+        prioridade: pacienteSelecionado.prioridade,
+      })
+      .eq("id", pacienteSelecionado.id);
+  
+    if (error) {
+      alert(error.message);
+      return;
+    }
+  
+    alert("Paciente atualizado com sucesso!");
+    setModoEdicao(false);
+    carregarFila();
+  };
   const chamarProximo = async () => {
     if (fila.length === 0) return;
 
@@ -452,14 +476,21 @@ export default function Dashboard() {
       <p><b>Senha:</b> {pacienteSelecionado.senha}</p>
       <p><b>Prioridade:</b> {pacienteSelecionado.prioridade}</p>
       <p><b>Sala:</b> {pacienteSelecionado.sala}</p>
-      <button
-  onClick={() => {
-    setModoEdicao(true);
-  }}
-  className="mb-3 w-full bg-yellow-500 hover:bg-yellow-600 p-3 rounded-xl font-bold"
->
-  ✏️ Editar Paciente
-</button>
+      {modoEdicao ? (
+  <button
+    onClick={salvarPaciente}
+    className="mb-3 w-full bg-green-600 hover:bg-green-700 p-3 rounded-xl font-bold"
+  >
+    💾 Salvar Alterações
+  </button>
+) : (
+  <button
+    onClick={() => setModoEdicao(true)}
+    className="mb-3 w-full bg-yellow-500 hover:bg-yellow-600 p-3 rounded-xl font-bold"
+  >
+    ✏️ Editar Paciente
+  </button>
+)}
       <button
         onClick={() => setPacienteSelecionado(null)}
         className="mt-6 w-full bg-red-600 p-3 rounded-xl"
