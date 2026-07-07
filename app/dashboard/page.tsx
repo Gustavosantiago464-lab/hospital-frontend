@@ -523,6 +523,13 @@ export default function Dashboard() {
 </button>
 
 <button
+  onClick={excluirPaciente}
+  className="mb-3 w-full bg-red-700 hover:bg-red-800 p-3 rounded-xl font-bold"
+>
+  🗑️ Excluir Paciente
+</button>
+
+<button
   onClick={() => {
     setPacienteSelecionado(null);
     setModoEdicao(false);
