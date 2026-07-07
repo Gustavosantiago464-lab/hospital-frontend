@@ -477,28 +477,116 @@ export default function Dashboard() {
       </h2>
 
       {modoEdicao ? (
-  <input
-    type="text"
-    value={pacienteSelecionado.nome}
-    onChange={(e) =>
-      setPacienteSelecionado({
-        ...pacienteSelecionado,
-        nome: e.target.value,
-      })
-    }
-    className="w-full p-3 rounded-xl bg-zinc-800 mb-3"
-  />
+  <div className="space-y-3">
+
+    <input
+      type="text"
+      placeholder="Nome"
+      value={pacienteSelecionado.nome}
+      onChange={(e) =>
+        setPacienteSelecionado({
+          ...pacienteSelecionado,
+          nome: e.target.value,
+        })
+      }
+      className="w-full p-3 rounded-xl bg-zinc-800"
+    />
+
+    <input
+      type="text"
+      placeholder="CPF"
+      value={pacienteSelecionado.cpf || ""}
+      onChange={(e) =>
+        setPacienteSelecionado({
+          ...pacienteSelecionado,
+          cpf: e.target.value,
+        })
+      }
+      className="w-full p-3 rounded-xl bg-zinc-800"
+    />
+
+    <input
+      type="text"
+      placeholder="Telefone"
+      value={pacienteSelecionado.telefone || ""}
+      onChange={(e) =>
+        setPacienteSelecionado({
+          ...pacienteSelecionado,
+          telefone: e.target.value,
+        })
+      }
+      className="w-full p-3 rounded-xl bg-zinc-800"
+    />
+
+    <input
+      type="date"
+      value={pacienteSelecionado.data_nascimento || ""}
+      onChange={(e) =>
+        setPacienteSelecionado({
+          ...pacienteSelecionado,
+          data_nascimento: e.target.value,
+        })
+      }
+      className="w-full p-3 rounded-xl bg-zinc-800"
+    />
+
+    <select
+      value={pacienteSelecionado.sexo || ""}
+      onChange={(e) =>
+        setPacienteSelecionado({
+          ...pacienteSelecionado,
+          sexo: e.target.value,
+        })
+      }
+      className="w-full p-3 rounded-xl bg-zinc-800"
+    >
+      <option>Masculino</option>
+      <option>Feminino</option>
+      <option>Outro</option>
+    </select>
+
+    <input
+      type="text"
+      placeholder="Alergias"
+      value={pacienteSelecionado.alergias || ""}
+      onChange={(e) =>
+        setPacienteSelecionado({
+          ...pacienteSelecionado,
+          alergias: e.target.value,
+        })
+      }
+      className="w-full p-3 rounded-xl bg-zinc-800"
+    />
+
+    <select
+      value={pacienteSelecionado.prioridade}
+      onChange={(e) =>
+        setPacienteSelecionado({
+          ...pacienteSelecionado,
+          prioridade: e.target.value,
+        })
+      }
+      className="w-full p-3 rounded-xl bg-zinc-800"
+    >
+      <option>Normal</option>
+      <option>Urgente</option>
+      <option>Emergência</option>
+    </select>
+
+  </div>
 ) : (
-  <p><b>Nome:</b> {pacienteSelecionado.nome}</p>
+  <>
+    <p><b>Nome:</b> {pacienteSelecionado.nome}</p>
+    <p><b>CPF:</b> {pacienteSelecionado.cpf}</p>
+    <p><b>Telefone:</b> {pacienteSelecionado.telefone}</p>
+    <p><b>Data Nasc.:</b> {pacienteSelecionado.data_nascimento}</p>
+    <p><b>Sexo:</b> {pacienteSelecionado.sexo}</p>
+    <p><b>Alergias:</b> {pacienteSelecionado.alergias}</p>
+    <p><b>Senha:</b> {pacienteSelecionado.senha}</p>
+    <p><b>Prioridade:</b> {pacienteSelecionado.prioridade}</p>
+    <p><b>Sala:</b> {pacienteSelecionado.sala}</p>
+  </>
 )}
-      <p><b>CPF:</b> {pacienteSelecionado.cpf}</p>
-      <p><b>Telefone:</b> {pacienteSelecionado.telefone}</p>
-      <p><b>Data Nasc.:</b> {pacienteSelecionado.data_nascimento}</p>
-      <p><b>Sexo:</b> {pacienteSelecionado.sexo}</p>
-      <p><b>Alergias:</b> {pacienteSelecionado.alergias}</p>
-      <p><b>Senha:</b> {pacienteSelecionado.senha}</p>
-      <p><b>Prioridade:</b> {pacienteSelecionado.prioridade}</p>
-      <p><b>Sala:</b> {pacienteSelecionado.sala}</p>
       {modoEdicao ? (
   <button
     onClick={salvarPaciente}
