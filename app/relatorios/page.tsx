@@ -24,7 +24,7 @@ export default function RelatoriosPage() {
   const [emergencia, setEmergencia] = useState(0);
   const [historico, setHistorico] = useState<any[]>([]);
   const [dadosGraficoDia, setDadosGraficoDia] = useState<any[]>([]);
-
+ 
   const dadosGrafico = [
     { nome: "Normal", total: normal },
     { nome: "Urgente", total: urgente },
@@ -81,6 +81,7 @@ const graficoDia = Object.keys(agrupado).map(
 );
 
 setDadosGraficoDia(graficoDia);
+console.log("Grafico Dia:", graficoDia);
   };
 
   const gerarPDF = () => {
@@ -267,21 +268,19 @@ setDadosGraficoDia(graficoDia);
   <h2 className="text-2xl font-bold mb-6">
     📈 Atendimentos por Dia
   </h2>
+  <p>{JSON.stringify(dadosGraficoDia)}</p>
 
-  <ResponsiveContainer
-    width="100%"
-    height={300}
-  >
-    <BarChart data={dadosGrafico}>
+  <div style={{ width: "100%", height: 350 }}>
+  <ResponsiveContainer width="100%" height="100%">
+    <BarChart data={dadosGraficoDia}>
       <XAxis dataKey="dia" />
       <YAxis />
       <Tooltip />
-      <Bar
-        dataKey="atendimentos"
-      />
+      <Bar dataKey="atendimentos" fill="#22c55e" />
     </BarChart>
   </ResponsiveContainer>
 </div>
-    </main>
+</div>
+ </main>
   );
 }
